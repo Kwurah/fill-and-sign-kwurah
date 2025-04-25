@@ -2,240 +2,74 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Signature App</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>E-Signature Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        :root {
-            --primary: #4361ee;
-            --primary-dark: #3a56d4;
-            --secondary: #4cc9f0;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --success: #2ecc71;
-            --danger: #e74c3c;
-            --gray: #6c757d;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
+        /* Basic styling */
         body {
-            background-color: #f0f2f5;
-            color: var(--dark);
-            line-height: 1.6;
-            padding: 0;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        header {
-            background-color: var(--primary);
-            color: white;
-            padding: 1.5rem 0;
-            text-align: center;
-            margin-bottom: 2rem;
-            box-shadow: var(--box-shadow);
-        }
-
-        h1 {
-            font-weight: 700;
-            font-size: 2.2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .header-subtitle {
-            font-weight: 300;
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-
-        .card {
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            transition: var(--transition);
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 0.8rem;
-        }
-
-        .card-icon {
-            background-color: var(--primary);
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 1rem;
-        }
-
-        h2 {
-            font-size: 1.3rem;
-            color: var(--dark);
+            font-family: Arial, sans-serif;
             margin: 0;
+            padding: 0;
+            background: #f2f2f2;
         }
-
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .input-group {
-            position: relative;
-        }
-
-        input[type="text"],
-        input[type="file"] {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border: 1px solid #ddd;
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
-        }
-
-        .file-input-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-        }
-
-        .custom-file-input {
-            background-color: var(--light);
-            color: var(--dark);
-            padding: 0.8rem 1rem;
-            border: 1px dashed #ddd;
-            border-radius: var(--border-radius);
-            width: 100%;
-            display: inline-block;
-            cursor: pointer;
-            text-align: center;
-            transition: var(--transition);
-        }
-
-        .custom-file-input:hover {
-            background-color: #e9ecef;
-        }
-
-        .custom-file-input i {
-            margin-right: 0.5rem;
-        }
-
-        input[type="file"] {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .btn {
-            display: inline-block;
-            background-color: var(--primary);
+        header {
+            background: #4a90e2;
             color: white;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            width: 100%;
-        }
-
-        .btn:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .btn i {
-            margin-right: 0.5rem;
-        }
-
-        .message {
-            margin-top: 1rem;
-            padding: 0.8rem;
-            border-radius: var(--border-radius);
-            font-size: 0.9rem;
-            display: none;
-        }
-
-        .message.success {
-            background-color: rgba(46, 204, 113, 0.2);
-            color: var(--success);
-            border-left: 3px solid var(--success);
-            display: block;
-        }
-
-        .message.error {
-            background-color: rgba(231, 76, 60, 0.2);
-            color: var(--danger);
-            border-left: 3px solid var(--danger);
-            display: block;
-        }
-
-        .file-name {
-            margin-top: 0.5rem;
-            font-size: 0.85rem;
-            color: var(--gray);
-        }
-
-        footer {
+            padding: 20px;
             text-align: center;
-            padding: 1.5rem 0;
-            margin-top: 2rem;
-            color: var(--gray);
-            font-size: 0.9rem;
         }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-            
-            .card {
-                padding: 1rem;
-            }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            margin: 10px;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 10px;
+        }
+        .btn {
+            background: #4a90e2;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #357ab8;
+        }
+        .message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            margin-top: 10px;
+            max-width: 100%;
         }
     </style>
 </head>
@@ -247,250 +81,160 @@
 
     <div class="container">
         <div class="card">
-            <div class="card-header">
-                <div class="card-icon">
-                    <i class="fas fa-file-upload"></i>
-                </div>
-                <h2>Upload Document</h2>
-            </div>
-            <div class="form-group">
-                <label for="pdfFile">Select PDF to Upload</label>
-                <div class="file-input-wrapper">
-                    <div class="custom-file-input" id="uploadLabel">
-                        <i class="fas fa-file-pdf"></i> Choose PDF File
-                    </div>
-                    <input type="file" id="pdfFile" accept=".pdf">
-                </div>
-                <div class="file-name" id="uploadFileName"></div>
-            </div>
-            <button class="btn" onclick="uploadPDF()">
-                <i class="fas fa-cloud-upload-alt"></i> Upload Document
-            </button>
+            <h2>Upload PDF</h2>
+            <input type="file" id="pdfFile" accept="application/pdf">
+            <button class="btn" onclick="uploadPDF()">Upload</button>
             <div id="uploadMessage" class="message"></div>
         </div>
 
         <div class="card">
-            <div class="card-header">
-                <div class="card-icon">
-                    <i class="fas fa-signature"></i>
-                </div>
-                <h2>Sign Document</h2>
-            </div>
+            <h2>Upload Signature</h2>
+            <input type="file" id="signatureFile" accept="image/*">
             <div class="form-group">
-                <label for="filename">Document Name</label>
-                <input type="text" id="filename" placeholder="Enter filename (e.g., document.pdf)">
+                <input type="text" id="filename" placeholder="Enter PDF filename (e.g., doc.pdf)">
             </div>
-            <div class="form-group">
-                <label for="signatureFile">Upload Signature Image</label>
-                <div class="file-input-wrapper">
-                    <div class="custom-file-input" id="signatureLabel">
-                        <i class="fas fa-image"></i> Choose Signature Image
-                    </div>
-                    <input type="file" id="signatureFile" accept="image/*">
-                </div>
-                <div class="file-name" id="signatureFileName"></div>
-            </div>
-            <button class="btn" onclick="signPDF()">
-                <i class="fas fa-pen-fancy"></i> Apply Signature
-            </button>
+            <button class="btn" onclick="previewPDF()">Preview PDF</button>
+            <canvas id="pdfCanvas"></canvas>
+            <button class="btn" onclick="signPDF()">Sign at Selected Position</button>
             <div id="signMessage" class="message"></div>
         </div>
 
         <div class="card">
-            <div class="card-header">
-                <div class="card-icon">
-                    <i class="fas fa-download"></i>
-                </div>
-                <h2>Download Signed Document</h2>
-            </div>
-            <div class="form-group">
-                <label for="downloadFilename">Document Name</label>
-                <input type="text" id="downloadFilename" placeholder="Enter filename to download">
-            </div>
-            <button class="btn" onclick="downloadPDF()">
-                <i class="fas fa-file-download"></i> Download Signed PDF
-            </button>
+            <h2>Download Signed PDF</h2>
+            <input type="text" id="downloadFilename" placeholder="Enter filename to download">
+            <button class="btn" onclick="downloadPDF()">Download PDF</button>
         </div>
     </div>
 
-    <footer>
-        &copy; 2025 Kwurah | E-Signature App | Secure Document Signing Solution
-    </footer>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <script>
-        // Display filename when file is selected for upload
-        document.getElementById("pdfFile").addEventListener("change", function() {
-            let fileName = this.files[0] ? this.files[0].name : "No file chosen";
-            document.getElementById("uploadFileName").textContent = fileName;
-            document.getElementById("uploadLabel").innerHTML = '<i class="fas fa-file-pdf"></i> ' + (fileName.length > 25 ? fileName.substring(0, 22) + '...' : fileName);
-        });
+        let clickCoords = { x: 100, y: 100 }; // Default position
 
-        // Display filename when signature file is selected
-        document.getElementById("signatureFile").addEventListener("change", function() {
-            let fileName = this.files[0] ? this.files[0].name : "No file chosen";
-            document.getElementById("signatureFileName").textContent = fileName;
-            document.getElementById("signatureLabel").innerHTML = '<i class="fas fa-image"></i> ' + (fileName.length > 25 ? fileName.substring(0, 22) + '...' : fileName);
+        document.getElementById("pdfCanvas").addEventListener("click", function(event) {
+            const canvas = event.target;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+
+            const x = (event.clientX - rect.left) * scaleX;
+            const y = (event.clientY - rect.top) * scaleY;
+
+            clickCoords = { x, y };
+            alert(`Signature position set at: (${Math.round(x)}, ${Math.round(y)})`);
         });
 
         async function uploadPDF() {
-            let fileInput = document.getElementById("pdfFile");
-            let file = fileInput.files[0];
-            let messageEl = document.getElementById("uploadMessage");
+            const file = document.getElementById("pdfFile").files[0];
+            const message = document.getElementById("uploadMessage");
+            if (!file) return messageError("Please select a PDF to upload", message);
 
-            if (!file) {
-                messageEl.className = "message error";
-                messageEl.innerText = "Please select a PDF file to upload";
-                return;
-            }
+            const formData = new FormData();
+            formData.append("file", file);
 
             try {
-                let formData = new FormData();
-                formData.append("file", file);
-
-                // Show loading state
-                let button = document.querySelector(".card:nth-child(1) .btn");
-                let originalText = button.innerHTML;
-                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-                button.disabled = true;
-
-                let response = await fetch("http://localhost:8000/upload", {
+                const response = await fetch("http://localhost:8000/upload", {
                     method: "POST",
-                    body: formData
+                    body: formData,
                 });
-
-                let result = await response.json();
-                
-                // Reset button state
-                button.innerHTML = originalText;
-                button.disabled = false;
-
+                const result = await response.json();
                 if (response.ok) {
-                    messageEl.className = "message success";
-                    messageEl.innerText = result.message || "File uploaded successfully!";
-                    
-                    // Auto-fill the filename in sign and download sections
+                    messageSuccess(result.message, message);
                     document.getElementById("filename").value = file.name;
                     document.getElementById("downloadFilename").value = file.name;
                 } else {
-                    messageEl.className = "message error";
-                    messageEl.innerText = result.message || "Error uploading file. Please try again.";
+                    messageError(result.message, message);
                 }
-            } catch (error) {
-                messageEl.className = "message error";
-                messageEl.innerText = "Connection error. Please check if the server is running.";
-                
-                // Reset button state
-                let button = document.querySelector(".card:nth-child(1) .btn");
-                button.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Upload Document';
-                button.disabled = false;
+            } catch {
+                messageError("Upload failed", message);
+            }
+        }
+
+        async function previewPDF() {
+            const filename = document.getElementById("filename").value;
+            const canvas = document.getElementById("pdfCanvas");
+            const ctx = canvas.getContext("2d");
+
+            try {
+                const response = await fetch(`http://localhost:8000/pdf/${filename}`);
+                const result = await response.json();
+                const pdfData = atob(result.content);
+
+                const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                const pdf = await loadingTask.promise;
+                const page = await pdf.getPage(1);
+
+                const viewport = page.getViewport({ scale: 1.5 });
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+
+                await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+            } catch (e) {
+                alert("Failed to load PDF preview");
             }
         }
 
         async function signPDF() {
-            let filename = document.getElementById("filename").value;
-            let fileInput = document.getElementById("signatureFile");
-            let file = fileInput.files[0];
-            let messageEl = document.getElementById("signMessage");
+            const file = document.getElementById("signatureFile").files[0];
+            const filename = document.getElementById("filename").value;
+            const message = document.getElementById("signMessage");
 
-            if (!filename) {
-                messageEl.className = "message error";
-                messageEl.innerText = "Please enter a filename";
-                return;
-            }
-            
-            if (!file) {
-                messageEl.className = "message error";
-                messageEl.innerText = "Please select a signature image";
-                return;
-            }
+            if (!file || !filename) return messageError("Please provide both PDF filename and signature", message);
 
-            try {
-                // Show loading state
-                let button = document.querySelector(".card:nth-child(2) .btn");
-                let originalText = button.innerHTML;
-                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing...';
-                button.disabled = true;
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async () => {
+                const base64Signature = reader.result.split(',')[1];
 
-                let reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = async function () {
-                    let base64Signature = reader.result.split(',')[1];  // Remove the data prefix
+                const payload = {
+                    filename,
+                    signature: base64Signature,
+                    x: Math.round(clickCoords.x),
+                    y: Math.round(clickCoords.y),
+                };
 
-                    let response = await fetch("http://localhost:8000/sign", {
+                try {
+                    const response = await fetch("http://localhost:8000/sign", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ filename: filename, signature: base64Signature })
+                        body: JSON.stringify(payload),
                     });
 
-                    let result = await response.json();
-                    
-                    // Reset button state
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-
+                    const result = await response.json();
                     if (response.ok) {
-                        messageEl.className = "message success";
-                        messageEl.innerText = result.message || "Document signed successfully!";
-                        
-                        // Auto-fill the download filename
-                        document.getElementById("downloadFilename").value = filename;
+                        messageSuccess(result.message, message);
                     } else {
-                        messageEl.className = "message error";
-                        messageEl.innerText = result.message || "Error signing document. Please try again.";
+                        messageError(result.message, message);
                     }
-                };
-            } catch (error) {
-                messageEl.className = "message error";
-                messageEl.innerText = "Connection error. Please check if the server is running.";
-                
-                // Reset button state
-                let button = document.querySelector(".card:nth-child(2) .btn");
-                button.innerHTML = '<i class="fas fa-pen-fancy"></i> Apply Signature';
-                button.disabled = false;
-            }
+                } catch {
+                    messageError("Failed to sign PDF", message);
+                }
+            };
         }
 
         async function downloadPDF() {
-            let filename = document.getElementById("downloadFilename").value;
-            
-            if (!filename) {
-                alert("Please enter a filename to download");
-                return;
-            }
+            const filename = document.getElementById("downloadFilename").value;
+            if (!filename) return alert("Please enter a filename");
 
             try {
-                // Show loading state
-                let button = document.querySelector(".card:nth-child(3) .btn");
-                let originalText = button.innerHTML;
-                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Downloading...';
-                button.disabled = true;
-
-                let response = await fetch(`http://localhost:8000/download/${filename}`);
-                
-                // Reset button state
-                button.innerHTML = originalText;
-                button.disabled = false;
-
-                if (!response.ok) {
-                    alert("Error downloading file: " + (await response.text()));
-                    return;
-                }
-
-                let blob = await response.blob();
-                let link = document.createElement("a");
+                const response = await fetch(`http://localhost:8000/download/${filename}`);
+                const blob = await response.blob();
+                const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
                 link.download = filename;
-                document.body.appendChild(link);
                 link.click();
-                document.body.removeChild(link);
-            } catch (error) {
-                alert("Connection error. Please check if the server is running.");
-                
-                // Reset button state
-                let button = document.querySelector(".card:nth-child(3) .btn");
-                button.innerHTML = '<i class="fas fa-file-download"></i> Download Signed PDF';
-                button.disabled = false;
+            } catch {
+                alert("Failed to download PDF");
             }
+        }
+
+        function messageSuccess(msg, el) {
+            el.textContent = msg;
+            el.className = "message success";
+        }
+
+        function messageError(msg, el) {
+            el.textContent = msg;
+            el.className = "message error";
         }
     </script>
 </body>

@@ -1,0 +1,16 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+.env
+
+# VS Code / PyCharm settings (optional, IDE-specific)
+.vscode/
