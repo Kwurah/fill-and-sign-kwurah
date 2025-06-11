@@ -17,10 +17,11 @@ app = FastAPI()
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],  # Adjust as needed for the frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    
 )
 
 # MongoDB setup
@@ -105,6 +106,25 @@ async def sign_pdf(sign_data: SignRequest):
     )
 
     return {"message": "Signature added successfully", "filename": sign_data.filename}
+
+    # Convert PDF to Images
+@app.post("/convert-pdf-to-images")
+async def convert_pdf_to_images(file: UploadFile):
+    # Read PDF
+    pdf_data = await file.read()
+    doc = fitz.open(stream=pdf_data, filetype="pdf")
+    
+    images = []
+    for page_num in range(doc.page_count):
+        page = doc[page_num]
+        pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))  # 2x zoom
+        img_data = pix.tobytes("png")
+        img_base64 = base64.b64encode(img_data).decode()
+        images.append(img_base64)
+    
+    doc.close()
+    return {"images": images}
+
 
 # Download PDF
 @app.get("/download/{filename}")
