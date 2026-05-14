@@ -1,145 +1,144 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File, HTTPException, Response
 from motor.motor_asyncio import AsyncIOMotorClient
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from bson import Binary
 import fitz  # PyMuPDF
 import io
 import base64
 import os
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
-# Initialize FastAPI
-app = FastAPI()
-
-# CORS configuration
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "*"],  
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    
-)
-
-# MongoDB setup
 MONGO_URI = os.getenv("MONGO_URI")
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+MAX_UPLOAD_BYTES = 15 * 1024 * 1024  # 15 MB
+
 client = AsyncIOMotorClient(MONGO_URI)
 db = client["fillandsign"]
 documents_collection = db["documents"]
 
-# Check MongoDB connection
-try:
-    client.admin.command('ping')
-    print("Pinged MongoDB successfully!")
-except Exception as e:
-    print("MongoDB connection failed:", e)
 
-# Pydantic Models
-class Document(BaseModel):
-    filename: str
-    content: str  # Base64-encoded PDF
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await client.admin.command("ping")
+    print("MongoDB connected.")
+    yield
+    client.close()
+
+
+app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 class SignRequest(BaseModel):
     filename: str
     signature: str  # Base64-encoded signature image
     x: float
     y: float
-    width: float = 200  # Default width
-    height: float = 100  # Default height
-    page: int = 0  # Default to first page
+    width: float = 200
+    height: float = 100
+    page: int = 0
 
-# Upload PDF
+
 @app.post("/upload")
 async def upload_pdf(file: UploadFile = File(...)):
     contents = await file.read()
-    encoded_pdf = base64.b64encode(contents).decode("utf-8")
-    await documents_collection.insert_one({"filename": file.filename, "content": encoded_pdf})
+    if len(contents) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="File exceeds 15 MB limit")
+    await documents_collection.update_one(
+        {"filename": file.filename},
+        {"$set": {"filename": file.filename, "content": Binary(contents)}},
+        upsert=True,
+    )
     return {"message": "PDF uploaded successfully", "filename": file.filename}
 
-# Fetch PDF by filename
+
 @app.get("/pdf/{filename}")
 async def get_pdf(filename: str):
     document = await documents_collection.find_one({"filename": filename})
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
-    return {"filename": document["filename"], "content": document["content"]}
+    encoded = base64.b64encode(bytes(document["content"])).decode("utf-8")
+    return {"filename": document["filename"], "content": encoded}
 
-# Apply Signature at Specific Position
+
 @app.post("/sign")
 async def sign_pdf(sign_data: SignRequest):
     document = await documents_collection.find_one({"filename": sign_data.filename})
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    # Decode the PDF and Signature
-    pdf_data = base64.b64decode(document["content"])
+    pdf_data = bytes(document["content"])
     signature_image = base64.b64decode(sign_data.signature)
 
-    # Open the PDF and target the page
     pdf = fitz.open(stream=pdf_data, filetype="pdf")
     if sign_data.page >= len(pdf):
         raise HTTPException(status_code=400, detail="Page number out of range")
 
     page = pdf[sign_data.page]
-
-    # Insert signature
     rect = fitz.Rect(
         sign_data.x,
         sign_data.y,
         sign_data.x + sign_data.width,
-        sign_data.y + sign_data.height
+        sign_data.y + sign_data.height,
     )
     page.insert_image(rect, stream=signature_image)
 
-    # Save updated PDF
     output_stream = io.BytesIO()
     pdf.save(output_stream)
     pdf.close()
 
-    updated_pdf_encoded = base64.b64encode(output_stream.getvalue()).decode("utf-8")
     await documents_collection.update_one(
         {"filename": sign_data.filename},
-        {"$set": {"content": updated_pdf_encoded}}
+        {"$set": {"content": Binary(output_stream.getvalue())}},
     )
-
     return {"message": "Signature added successfully", "filename": sign_data.filename}
 
-    # Convert PDF to Images
+
 @app.post("/convert-pdf-to-images")
 async def convert_pdf_to_images(file: UploadFile):
-    # Read PDF
     pdf_data = await file.read()
     doc = fitz.open(stream=pdf_data, filetype="pdf")
-    
+
+    first_page = doc[0]
+    rect = first_page.rect
+    dimensions = {"width": rect.width, "height": rect.height}
+
     images = []
     for page_num in range(doc.page_count):
         page = doc[page_num]
-        pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))  # 2x zoom
-        img_data = pix.tobytes("png")
-        img_base64 = base64.b64encode(img_data).decode()
+        pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))
+        img_base64 = base64.b64encode(pix.tobytes("png")).decode()
         images.append(img_base64)
-    
+
     doc.close()
-    return {"images": images}
+    return {"images": images, "dimensions": dimensions}
 
 
-# Download PDF
 @app.get("/download/{filename}")
 async def download_pdf(filename: str):
     document = await documents_collection.find_one({"filename": filename})
     if not document:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    pdf_data = base64.b64decode(document["content"])
     return Response(
-        content=pdf_data,
+        content=bytes(document["content"]),
         media_type="application/pdf",
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
+
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
